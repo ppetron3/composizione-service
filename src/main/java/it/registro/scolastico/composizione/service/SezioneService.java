@@ -7,6 +7,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import it.registro.scolastico.composizione.dto.SezioneDTO;
+import it.registro.scolastico.composizione.exception.RichiestaNonValidaException;
+import it.registro.scolastico.composizione.exception.RisorsaNonTrovataException;
 import it.registro.scolastico.composizione.model.Sezione;
 import it.registro.scolastico.composizione.repository.SezioneRepository;
 
@@ -25,14 +27,29 @@ public class SezioneService {
     }
 
     // Metodo per recuperare una sezione tramite il suo id
-    public Optional<Sezione> cercaPerId(UUID id){
-        return this.sezioneRepository.findById(id);
+    public List<Sezione> cercaPerId(UUID id){
+        return this.sezioneRepository.findByIdAndActiveTrue(id);
     }
 
     // Metodo per recuperare TUTTE le sezioni
     public List<Sezione> cercaTutti(){
-        return this.sezioneRepository.findAll();
+        return this.sezioneRepository.findByActive();
     }
+
+    public void cancellaSezione(UUID id){
+
+        Sezione sezione = sezioneRepository.findById(id)
+            .orElseThrow(() -> new RisorsaNonTrovataException("Sezione non trovata"));
+    
+        if(!sezione.isActive()){
+        throw new RichiestaNonValidaException("La sezione è già stata disattivata");
+    }
+
+    sezione.setActive(false);
+    sezioneRepository.save(sezione);
+
+    }
+
 
     // "Conversione" da dto a Entity = DTO di input -> Entity JPA 
     public Sezione creaSezione(SezioneDTO dto){

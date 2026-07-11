@@ -2,12 +2,16 @@ package it.registro.scolastico.composizione.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
 
 import it.registro.scolastico.composizione.dto.ClasseDTO;
 import it.registro.scolastico.composizione.exception.ConflittoException;
+import it.registro.scolastico.composizione.exception.RichiestaNonValidaException;
 import it.registro.scolastico.composizione.exception.RisorsaNonTrovataException;
 import it.registro.scolastico.composizione.model.AnnoScolastico;
 import it.registro.scolastico.composizione.model.Classe;
@@ -23,12 +27,17 @@ public class ClasseService {
     private final AnnoScolasticoRepository annoScolasticoRepository;
     private final SezioneRepository sezioneRepository;
 
+    // Il client HTTP per parlare con gli altri microservizi
+    private final RestClient restClient;
+
     public ClasseService(ClasseRepository classeRepository, 
                          AnnoScolasticoRepository annoScolasticoRepository, 
                          SezioneRepository sezioneRepository) {
         this.classeRepository = classeRepository;
         this.annoScolasticoRepository = annoScolasticoRepository;
         this.sezioneRepository = sezioneRepository;
+
+        this.restClient = RestClient.create();
     }
 
     public Classe creaClasse(ClasseDTO dto) {
@@ -46,6 +55,15 @@ public class ClasseService {
 
             if(!sezione.isActive()){
                 throw new ConflittoException("La sezione esiste ma non è attiva ");
+            }
+
+            try {
+                restClient.get()
+                .uri("http://localhost8081/api/v1/scuole/" + dto.idScuola())
+                .retrieve()
+                .toBodilessEntity(); // Interroga lo stub di scuola-service
+            } catch (org.springframework.web.client.HttpClientErrorException.NotFound ex) {
+                throw new RisorsaNonTrovataException("La scuola specificata non esiste");
             }
 
         if(classeRepository.findByIdScuolaAndNumeroAnnoAndSezioneIdAndAnnoScolasticoId(
@@ -73,11 +91,9 @@ public class ClasseService {
 
     }
 
-
-
     public Classe cercaClassePerId(UUID id){
         
-        return this.classeRepository.findById(id)
+        return this.classeRepository.findByIdAndActiveTrue(id)
                .orElseThrow(() -> new RisorsaNonTrovataException("Classe non trovata"));
     }
 
@@ -93,4 +109,20 @@ public class ClasseService {
 
         return this.classeRepository.findByAnnoScolasticoIdAndActiveTrue(idAnnoScolastico);
     }
+
+    public void cancellaClasse(UUID id){
+        Classe classe = classeRepository.findByIdAndActiveTrue(id)
+            .orElseThrow(() -> new RisorsaNonTrovataException("Classe non trovata"));
+
+         if(!classe.isActive()){
+            throw new RichiestaNonValidaException("Classe già disattivata");
+         }   
+
+         classe.setActive(false);
+         classeRepository.save(classe);
+    }
+
+    
+
+
 }

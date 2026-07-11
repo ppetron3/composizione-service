@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,7 +59,8 @@ public class ClasseController {
 
 
     @GetMapping
-    public ResponseEntity <List<ClasseResponseDTO>> cercaClassiPerAnnoScolastico(@RequestParam UUID idAnnoScolastico){
+    public ResponseEntity <List<ClasseResponseDTO>> cercaClassiPerAnnoScolastico(
+        @RequestParam("id_anno_scolastico") UUID idAnnoScolastico)){
         
         List<Classe> classiTrovate = classeService.cercaClassiPerAnnoScolastico(idAnnoScolastico);
 
@@ -69,6 +71,14 @@ public class ClasseController {
         }
 
         return ResponseEntity.ok(response);
+
+    }
+    
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> cancellaClasse(@PathVariable UUID id){
+        classeService.cancellaClasse(id);
+        return ResponseEntity.noContent().build();
 
     }
     

@@ -1,5 +1,6 @@
 package it.registro.scolastico.composizione.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,6 +17,8 @@ public interface AnnoScolasticoRepository extends JpaRepository<AnnoScolastico, 
     
     // Cerca un anno scolastico dove "annoCorrente = true" E "active = true"
     //Verifica che non ci siano due anni correnti attivi
-    Optional<AnnoScolastico> findByAnnoCorrenteTrueAndActiveTrue();
+    Optional<AnnoScolastico> findByAnnoCorrenteTrueAndActiveTrue(); 
+
+    List<AnnoScolastico> findByActiveTrue();
 }
 

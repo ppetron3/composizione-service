@@ -24,5 +24,5 @@ public interface ClasseRepository extends JpaRepository<Classe, UUID>{
     // Ritorna la lista delle classi di quell'anno scolastico e "attive"
     List<Classe> findByAnnoScolasticoIdAndActiveTrue(UUID idAnnoScolastico);
 
-    
+    Optional<Classe> findByIdAndActiveTrue(UUID id);
 }

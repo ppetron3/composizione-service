@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import it.registro.scolastico.composizione.dto.AnnoScolasticoDTO;
@@ -56,11 +57,11 @@ public class AnnoScolasticoService {
     }
 
     public Optional<AnnoScolastico> cercaPerId(UUID id) {
-        return this.annoScolasticoRepository.findById(id);
+        return this.annoScolasticoRepository.findByIdAndActive(id, true);
     }
 
     public List<AnnoScolastico> cercaTutti() {
-        return this.annoScolasticoRepository.findAll();
+        return this.annoScolasticoRepository.findByActiveTrue();
     }
 
     public AnnoScolastico cercaAnnoCorrente(){
@@ -69,6 +70,19 @@ public class AnnoScolasticoService {
             .orElseThrow(() -> new RisorsaNonTrovataException(
                 "Anno scolastico corrente non trovato"));
     
+    }
+
+    public void cancellaAnnoScolastico(UUID id){
+
+        AnnoScolastico anno = annoScolasticoRepository.findById(id)
+        .orElseThrow(( ) -> new RisorsaNonTrovataException("Anno scolastico non trovato") );
+
+        if(!anno.isActive()){
+            throw new RichiestaNonValidaException("L'anno scolastico è già stato disattivato");
+        }
+
+        anno.setActive(false);
+        annoScolasticoRepository.save(anno);
     }
 
 }
