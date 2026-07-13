@@ -9,7 +9,7 @@ import it.registro.scolastico.composizione.model.Sezione;
 
 public interface SezioneRepository extends JpaRepository<Sezione, UUID>{
 
-    List<Sezione> findByActive();
+    List<Sezione> findByActiveTrue();
 
     List<Sezione> findByIdAndActiveTrue(UUID id);
 

@@ -1,7 +1,6 @@
 package it.registro.scolastico.composizione.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -33,7 +32,7 @@ public class SezioneService {
 
     // Metodo per recuperare TUTTE le sezioni
     public List<Sezione> cercaTutti(){
-        return this.sezioneRepository.findByActive();
+        return this.sezioneRepository.findByActiveTrue();
     }
 
     public void cancellaSezione(UUID id){
