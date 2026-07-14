@@ -7,6 +7,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/**
+ * Sezione
+ * 
+ * Entità JPA che rappresenta una sezione scolastica
+ * 
+ * Contiene un nome identificativo breve, una descrizione opzionale
+ * e un flag active usato per la cancellazione logica.
+ */
+
 @Entity
 @Table(name = "sezioni")
 public class Sezione {

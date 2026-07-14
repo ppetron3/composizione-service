@@ -11,6 +11,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+
+/**
+ * Classe
+ * 
+ * Entità JPA che rappresenta una classe scolastica
+ * 
+ * Collega il dominio interno del microservizio
+ * (anno scolastico e sezione) con un riferimento esterno alla scuola,
+ * e contiene anche informazioni di business come numeroAnno e aula 
+ * e metadati tecnici come active e creatoIl.
+ */
 @Entity
 @Table(name = "classi")
 public class Classe {

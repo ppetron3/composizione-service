@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import it.registro.scolastico.composizione.dto.AnnoScolasticoDTO;
@@ -15,6 +14,8 @@ import it.registro.scolastico.composizione.exception.RisorsaNonTrovataException;
 import it.registro.scolastico.composizione.model.AnnoScolastico;
 import it.registro.scolastico.composizione.repository.AnnoScolasticoRepository;
 
+
+
 @Service
 public class AnnoScolasticoService {
 
@@ -23,6 +24,19 @@ public class AnnoScolasticoService {
     public AnnoScolasticoService(AnnoScolasticoRepository annoScolasticoRepository) {
         this.annoScolasticoRepository = annoScolasticoRepository;
     }
+
+    /**
+     * Crea un nuovo anno scolastico applicando le regole di business del dominio
+     * 
+     * Verifica che la data di fine sia successiva alla data di inizio
+     * e che non esiste già un anno scolastico corrente attivo
+     * quando il DTO richiede la creazione di un nuovo anno corrente.
+     * 
+     * @param dto dati in ingresso per la creazione di un anno scolastico
+     * @return l'entità AnnoScolastico salvata nel database
+     * @throws RichiestaNonValidaException se le date non sono coerenti
+     * @throws ConflittoException se esiste già un anno corrente attivo
+     */
         public AnnoScolastico creaAnnoScolastico(AnnoScolasticoDTO dto) {
             
             // se la data di fine non è dopo la data di inizio, blocca la creazione.
@@ -64,6 +78,13 @@ public class AnnoScolasticoService {
         return this.annoScolasticoRepository.findByActiveTrue();
     }
 
+    /**
+     * Restituisce l'anno scolastico corrente attualmente attivo
+     * 
+     * 
+     * @return anno scolastico corrente
+     * @throws RisorsaNonTrovataException se nel sistema non esiste alcun anno corrente attivo
+     */
     public AnnoScolastico cercaAnnoCorrente(){
     
         return annoScolasticoRepository.findByAnnoCorrenteTrueAndActiveTrue()
@@ -72,6 +93,13 @@ public class AnnoScolasticoService {
     
     }
 
+    /**
+     * Disattiva logicamente un anno scolastico senza eliminarlo fisicamente dal database.
+     * 
+     * @param id identificativo UUID dell'anno scolastico
+     * @throws RisorsaNonTrovataException se l'anno non esiste
+     * @throws RichiestaNonValidaException se l'anno è già inattivo
+     */
     public void cancellaAnnoScolastico(UUID id){
 
         AnnoScolastico anno = annoScolasticoRepository.findById(id)

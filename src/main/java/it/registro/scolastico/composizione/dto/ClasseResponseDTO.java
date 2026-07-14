@@ -6,6 +6,14 @@ import java.util.UUID;
 import it.registro.scolastico.composizione.model.Classe;
 
 
+/**
+ * DTO di output usato per restituire al client una rapppresententazione
+ * leggibile di Classe
+ * 
+ * Oltre agli identificativi, espone campi derivati utili al client,
+ * come il nome della sezione e l'etichetta testuale dell'anno scolastico.
+ */
+
 public record ClasseResponseDTO(
 
     UUID id,
@@ -19,6 +27,15 @@ public record ClasseResponseDTO(
 
 ) {
 
+    /**
+     * Converte un'entity Classe nel corrispondente DTO di risposta.
+     * 
+     * Il metodo estrae anche informazioni derivate dalle relazioni,
+     * come il nome della sezione e l'etichetta dell'anno scolastico.
+     * 
+     * @param classe entity persistente da convertire
+     * @return DTO di risposta pronto per essere serializzato in JSON
+     */
 
     public static ClasseResponseDTO fromEntity(Classe classe){
 

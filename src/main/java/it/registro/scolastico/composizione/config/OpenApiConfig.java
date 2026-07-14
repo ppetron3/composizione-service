@@ -1,16 +1,35 @@
 package it.registro.scolastico.composizione.config;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+
+/**
+ * 
+ * OpenApiConfig
+ * 
+ * Configurazione OpenAPI 
+ * 
+ * Definisce i metadati principali della documentazione API
+ * e lo schema di sicurezza bearer JWT usato da Swagger UI
+ */
 
 @Configuration
 public class OpenApiConfig {
 
+ /**
+  * Costruisce la descrizione OpenAPI del microservizio
+  * 
+  * Include titolo, versione, descrizione e configurazione 
+  * dello schema di autenticazione bearer JWT.
+  * 
+  * @return oggetto OpenAPI usato da springdoc/Swagger UI
+  */
     @Bean
     public OpenAPI customOpenAPI() {
         final String securitySchemeName = "bearerAuth";

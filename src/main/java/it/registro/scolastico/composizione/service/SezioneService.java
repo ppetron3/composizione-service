@@ -20,37 +20,16 @@ public class SezioneService {
         this.sezioneRepository = sezioneRepository;
     }
 
-    // Metodo per salvare una sezione nel DB
-    public Sezione salva(Sezione sezione){
-        return this.sezioneRepository.save(sezione);
-    }
-
-    // Metodo per recuperare una sezione tramite il suo id
-    public List<Sezione> cercaPerId(UUID id){
-        return this.sezioneRepository.findByIdAndActiveTrue(id);
-    }
-
-    // Metodo per recuperare TUTTE le sezioni
-    public List<Sezione> cercaTutti(){
-        return this.sezioneRepository.findByActiveTrue();
-    }
-
-    public void cancellaSezione(UUID id){
-
-        Sezione sezione = sezioneRepository.findById(id)
-            .orElseThrow(() -> new RisorsaNonTrovataException("Sezione non trovata"));
     
-        if(!sezione.isActive()){
-        throw new RichiestaNonValidaException("La sezione è già stata disattivata");
-    }
-
-    sezione.setActive(false);
-    sezioneRepository.save(sezione);
-
-    }
-
-
-    // "Conversione" da dto a Entity = DTO di input -> Entity JPA 
+    /**
+     * Crea una nuova sezione a partire dai dati ricevuti dal client.
+     * 
+     * Converte il DTO di input in una entity JPA, assegna un UUID 
+     * e inizializza la sezione come attiva.
+     * 
+     * @param dto dati in ingresso della sezione
+     * @return sezione salvata nel database
+     */
     public Sezione creaSezione(SezioneDTO dto){
 
         Sezione sezione = new Sezione();
@@ -62,6 +41,48 @@ public class SezioneService {
 
         // Passaggio al layer "repository" che si occuperà del salvataggio nel DB
         return sezioneRepository.save(sezione);
+
+    }
+
+    // Metodo per salvare una sezione nel DB
+    public Sezione salva(Sezione sezione){
+        return this.sezioneRepository.save(sezione);
+    }
+
+    // Metodo per recuperare una sezione tramite il suo id
+    public List<Sezione> cercaPerId(UUID id){
+        return this.sezioneRepository.findByIdAndActiveTrue(id);
+    }
+
+    /**
+     * Restituisce tutte le sezioni attive del sistema.
+     * 
+     * @return lista delle sezioni con active= true
+    */
+    public List<Sezione> cercaTutti(){
+        return this.sezioneRepository.findByActiveTrue();
+    }
+
+    /**
+     * Esegue il soft delete di una sezione
+     * 
+     * La sezione non viene eliminata fisicamente, ma solo disattivata.
+     * 
+     * @param id identificativo UUID della sezione
+     * @throws RisorsaNonTrovataException se la sezione non esiste
+     * @throws RichiestaNonValidaException se la sezione è già inattiva
+     */
+    public void cancellaSezione(UUID id){
+
+        Sezione sezione = sezioneRepository.findById(id)
+            .orElseThrow(() -> new RisorsaNonTrovataException("Sezione non trovata"));
+    
+        if(!sezione.isActive()){
+        throw new RichiestaNonValidaException("La sezione è già stata disattivata");
+    }
+
+    sezione.setActive(false);
+    sezioneRepository.save(sezione);
 
     }
 

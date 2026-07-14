@@ -1,15 +1,30 @@
 package it.registro.scolastico.composizione.config;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.stereotype.Component;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+
+/**
+ * 
+ * JwtUtils
+ * 
+ * Utility dedicata alla gestione dei JSON Web Token
+ * 
+ * Si occupa di:
+ * - costruire la chiave di firma
+ * - leggere i claim del token
+ * - estrarre username e ruoli
+ * - verificare la validità e la scadenza del JWT
+ */
 
 @Component
 public class JwtUtils {
@@ -21,7 +36,14 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
     }
 
-    // 1. ESTRAZIONE GENERICO (per prendere qualsiasi claim)
+    /**
+     * Estra un claim arbitrario dal payload del JWT dopo averne modificato la firma
+     * 
+     * @param token JWT da analizzare 
+     * @param claimsResolver funziona che seleziona il claim desiderato
+     * @param <T> tipo del valore da restituire 
+     * @return il valore del claim richiesto
+     */
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = Jwts.parser()
                 .verifyWith(getSigningKey())
@@ -31,18 +53,35 @@ public class JwtUtils {
         return claimsResolver.apply(claims);
     }
 
-    // 2. ESTRAZIONE USERNAME (Campo "sub" nel JSON)
+    /**
+     * Estrae lo username dal claim standard "sub" del token
+     * 
+     * @param token JWT da analizzare 
+     * @return username contenuto nel token
+     */
     public String estraiUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // 3. ESTRAZIONE RUOLI (Claim personalizzato)
+
+    /**
+     * Estrae la lista dei ruoli dal claim personalizzato "roles"
+     * 
+     * @param token JWT da analizzare
+     * @return lista dei ruoli dichiarati nel payload
+     */
     @SuppressWarnings("unchecked")
     public List<String> estraiRuoli(String token) {
         return extractClaim(token, claims -> claims.get("roles", List.class));
     }
 
-    // 4. VALIDAZIONE
+    /**
+     * Verifica che il token sia coerente con l'utente atteso e non sia scaduto
+     * 
+     * @param token JWT da validare
+     * @param username username atteso
+     * @return true se il token è valido, false altrimenti
+     */
     public boolean isTokenValido(String token, String username) {
         final String usernameEstratto = estraiUsername(token);
         return (usernameEstratto.equals(username) && !isTokenScaduto(token));

@@ -10,11 +10,35 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+
+/**
+ * 
+ * VersioningFilter
+ * 
+ * Filtro che gestisce il versioning interno delle API 
+ * 
+ * Se la richiesta arriva già su una path versionata "/api/v1/..." viene lasciata passare.
+ * Se invece arriva su una path esterna del servizio, il filtro effettua
+ * un forward interno verso la path corretta con prefisso "/api/v1".
+ */
+
 @Component
 public class VersioningFilter extends OncePerRequestFilter{
 
     // Il filtro deve chiedersi questo
     // "La richiesta che sta arrivando è già nel formato /api/v1/... oppure è una path esterna da riscrivere? */
+
+    /**
+     * Analizza la URI della richiesta corrente e decide se:
+     * - lasciarla passare senza modifiche
+     * - oppure inoltrarla internamente alla corrispondente path versionata "/api/v1"
+     * 
+     * @param request richiesta HTTP in ingresso
+     * @param response risposta HTTP in uscita
+     * @param filterChain catena dei filtri successivi
+     * @throws ServletException se il container servlet segnala un errore di filtro
+     * @throws IOException se si verifica un errore I/O durante l'elaborazione
+     */
     @Override
     protected void doFilterInternal(
         HttpServletRequest request,

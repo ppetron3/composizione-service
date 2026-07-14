@@ -11,6 +11,20 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import it.registro.scolastico.composizione.filter.JwtAuthenticationFilter;
 
+/**
+ * 
+ * SecurityConfig
+ * 
+ * Configurazione generale della sicurezza del microservizio composizione-service
+ * 
+ * Definisce:
+ * - la policy stateless basata su JWT
+ * - le rotte pubbliche (Swagger/OpenAPI)
+ * - le rotte accessibili con autenticazione
+ * - le rotte riservate ai ruoli @DOCENTE e @SEGRETERIA
+ * - il posizionamento del filtro JWT nella security chain
+ */
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -21,10 +35,21 @@ public class SecurityConfig {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
+    /**
+     * Costruisce la catena di sicurezza HTTP del microservizio
+     * 
+     * Configura CSRF, sessioni stateless, regole di accesso per i vari endpoint
+     * e inserisce il filtro JWT prima del filtro standard di Spring Security
+     * 
+     * @param http configuratore di sicurezza HTTP di Spring
+     * @return la SecurityFilterChain finale usata dal framework
+     * @throws Exception se Spring Security incontra errori di configurazione
+     */
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Disabilitiamo CSRF perché siamo Stateless con JWT
+            .csrf(csrf -> csrf.disable()) // Disabilitiamo CSRF perché il servizio usa JWT ed è STATELESS
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 
@@ -36,17 +61,15 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/sezioni/**").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/v1/classi/**").authenticated()
 
-                // 3. ROTTE DI SCRITTURA/MODIFICA (POST, PUT, DELETE) -> Riservate a DOCENTE o SEGRETERIA
-                // Nota: Spring Security per la dicitura "hasAnyRole" aggiunge in automatico il prefisso "ROLE_"
-                // che avevamo impostato nel JwtAuthenticationFilter!
+                // 3. ROTTE DI SCRITTURA/MODIFICA (POST, DELETE) -> Riservate a DOCENTE o SEGRETERIA
+                // Le operazioni di modifica sono consentite solo a DOCENTE o SEGRETERIA 
                 .requestMatchers(HttpMethod.POST, "/api/v1/**").hasAnyRole("DOCENTE", "SEGRETERIA")
-                .requestMatchers(HttpMethod.PUT, "/api/v1/**").hasAnyRole("DOCENTE", "SEGRETERIA")
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/**").hasAnyRole("DOCENTE", "SEGRETERIA")
 
                 // 4. TUTTO IL RESTO -> Deve essere autenticato come barriera di sicurezza finale
                 .anyRequest().authenticated()
             )
-            // Aggiungiamo il nostro filtro custom PRIMA del filtro standard di Spring
+            // Aggiungiamo il nostro filtro JWT PRIMA del filtro standard di Spring Security
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

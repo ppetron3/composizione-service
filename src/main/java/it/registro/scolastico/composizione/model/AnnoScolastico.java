@@ -9,6 +9,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/**
+ * AnnoScolastico
+ * 
+ * Entità JPA che rappresenta un anno scolastico nel sistema-
+ * 
+ * Modella il contesto temporale del dominio e contiene:
+ * - data di inizio e fine
+ * - indicazioni di anno corrente
+ * - stato logico attvo/inattivo
+ * - timestamp della creazione
+ */
+
 @Entity
 @Table(name = "anni_scolastici")
 public class AnnoScolastico {

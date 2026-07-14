@@ -37,6 +37,22 @@ public class ClasseService {
         this.restClient = RestClient.create();
     }
 
+    /**
+     * Crea una nuova classe scolastica verificando la coerenza del dominio.
+     * 
+     * Il metodo controlla:
+     * - esistenza e stato attivo dell'anno scolastico
+     * - esistenza e stato attivo della sezione
+     * - esistenza della scuola nel microservizio esterno
+     * - assenza di duplicati  logici
+     * 
+     * Successivamente costruisce l'entity Classe, assegna i metadati interni e la salva nel database.
+     *
+     * @param dto dati in ingresso alla creazione della classe
+     * @return la classe salvata nel database
+     * @throws RisorsaNonTrovataException se ano, sezione o scuola non esistono
+     * @throws ConflittoException se anno o sezione non sono attivi oppure la classe è duplicata
+     */
     public Classe creaClasse(ClasseDTO dto) {
         AnnoScolastico anno = annoScolasticoRepository.findById(dto.idAnnoScolastico())
             .orElseThrow(() -> new RisorsaNonTrovataException("Anno scolastico non trovato"));
@@ -85,11 +101,26 @@ public class ClasseService {
         return classeRepository.save(nuovaClasse);
     }
 
+    /**
+     * Restituisce una classe attiva a partire dal suo UUID 
+     * 
+     * @param id identificativo della classe
+     * @return classe trovata
+     * @throws RisorsaNonTrovataException se la classe non esiste o non è attiva
+     */
     public Classe cercaClassePerId(UUID id) {
         return this.classeRepository.findByIdAndActiveTrue(id)
             .orElseThrow(() -> new RisorsaNonTrovataException("Classe non trovata"));
     }
 
+    /**
+     * Restituisce le classi attive associate a un anno scolastico valido e attivo.
+     * 
+     * @param idAnnoScolastico UUID dell'anno scolastico usato come filtro
+     * @return lista delle classi attive associate all'anno
+     * @throws RisorsaNonTrovataException se l'anno scolastico non esiste
+     * @throws ConflittoException se l'anno scolastico esiste ma non è attivo
+     */
     public List<Classe> cercaClassiPerAnnoScolastico(UUID idAnnoScolastico) {
         AnnoScolastico anno = annoScolasticoRepository.findById(idAnnoScolastico)
             .orElseThrow(() -> new RisorsaNonTrovataException("Anno scolastico non trovato"));
@@ -101,6 +132,15 @@ public class ClasseService {
         return this.classeRepository.findByAnnoScolasticoIdAndActiveTrue(idAnnoScolastico);
     }
 
+    /**
+     * Disattiva logicamente una Classe scolastica.
+     * 
+     * La risorsa non viene rimossa fisicamente dal database, ma resa invisibile 
+     * alle operazioni che lavorano solo sulle entità attive.
+     * 
+     * @param id UUID della classe da disattivare
+     * @throws RisorsaNonTrovataException se la  classe non esiste o non è attiva
+     */
     public void cancellaClasse(UUID id) {
         Classe classe = classeRepository.findByIdAndActiveTrue(id)
             .orElseThrow(() -> new RisorsaNonTrovataException("Classe non trovata"));

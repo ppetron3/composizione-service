@@ -7,6 +7,17 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+
+/**
+ * DTP di input usato per la creazione di una nuova Classe
+ * 
+ * Contiene gli identificativi minimi necessari per costruire l'entity persistente e i 
+ * dati di business forniti dal client.
+ * 
+ * La validatazione strutturale dei campi viene espressa tramite
+ * annotazioni di Bean Validation
+ */
+
 public record ClasseDTO(
     @NotNull (message= "L'id è obbligatorio")
     UUID idScuola,
