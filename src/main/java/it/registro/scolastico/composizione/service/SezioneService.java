@@ -50,8 +50,9 @@ public class SezioneService {
     }
 
     // Metodo per recuperare una sezione tramite il suo id
-    public List<Sezione> cercaPerId(UUID id){
-        return this.sezioneRepository.findByIdAndActiveTrue(id);
+    public Sezione cercaPerId(UUID id){
+        return this.sezioneRepository.findByIdAndActiveTrue(id)
+            .orElseThrow(() -> new RisorsaNonTrovataException("Risorsa non trovata"));
     }
 
     /**
