@@ -31,3 +31,36 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Variabili d'ambiente e configurazione locale (NON committare segreti) ###
+# File .env usati per iniettare variabili d'ambiente in locale/compose
+.env
+.env.*
+*.env
+# ...ma consenti il template senza valori reali, se presente
+!.env.example
+
+# Profili Spring per sviluppo locale (contengono credenziali reali del PC)
+application-local.properties
+application-local.yml
+application-local.yaml
+*-local.properties
+*-local.yml
+*-local.yaml
+
+# File espliciti di segreti
+secrets.properties
+secrets.yml
+secrets.yaml
+
+### Credenziali, certificati e keystore ###
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+### Runbook/appunti locali generati durante lo sviluppo ###
+RUNBOOK_*.md
+NOTES_LOCAL.md
