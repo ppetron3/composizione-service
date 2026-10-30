@@ -23,7 +23,7 @@ compila:
 testa:
   stage: test
   script:
-    - ./mvnw test
+    - ./mvnw test -Dspring.profiles.active=test
   artifacts:
     when: always
     reports:
