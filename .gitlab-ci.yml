@@ -1,0 +1,70 @@
+# Stage ordinati dal più veloce al piu costoso: fail fast
+stages:
+  - build
+  - test
+  - analyze 
+
+# Immagine di default per tutti i job: build-time (contiene Maven + JDK 21)
+# Un singolo job può sovrascriverla con `image:` locale
+image: maven:3.9-eclipse-temurin-21
+
+# Primo job: compila il sorgente in JAR (i test girano in uno stage dedicato)
+# L'artifact rende il JAR disponibile al job docker-build successivo 
+compila: 
+  stage: build
+  script: 
+    - ./mvnw clean package -DskipTests
+  artifacts: 
+    paths: 
+    - target/*.jar
+    expire_in: 1 week
+
+# Secondo job: esegue i test (unit test di Spring)
+testa:
+  stage: test
+  script:
+    - ./mvnw test
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml
+    paths:
+      - target/surefire-reports/
+    expire_in: 1 week
+
+# Terzo job: analisi statica con SpotBugs (bug detector sul bytecode)
+spotbugs:
+  stage: analyze
+  script:
+    - ./mvnw spotbugs:check
+  artifacts:
+    when: on_failure
+    paths:
+      - target/spotbugsXml.xml
+    expire_in: 1 week
+
+# Quarto job: analisi statica con PMD (code smell e anti-pattern)
+pmd:
+  stage: analyze
+  script:
+    - ./mvnw pmd:check
+  artifacts:
+    when: on_failure
+    paths:
+      - target/pmd.xml
+    expire_in: 1 week
+
+# Quinto job: analisi statica con Checkstyle (convenzioni di stile)
+checkstyle:
+  stage: analyze
+  script:
+    - ./mvnw checkstyle:check
+  artifacts:
+    when: on_failure
+    paths:
+      - target/checkstyle-result.xml
+    expire_in: 1 week
+
+
+
