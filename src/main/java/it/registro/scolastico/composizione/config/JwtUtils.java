@@ -84,7 +84,7 @@ public class JwtUtils {
      */
     public boolean isTokenValido(String token, String username) {
         final String usernameEstratto = estraiUsername(token);
-        return (usernameEstratto.equals(username) && !isTokenScaduto(token));
+        return usernameEstratto.equals(username) && !isTokenScaduto(token);
     }
 
     private boolean isTokenScaduto(String token) {
