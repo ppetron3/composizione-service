@@ -69,10 +69,8 @@ protected void doFilterInternal(
     String username = jwtUtils.estraiUsername(token); // Leggiamo lo username dal JSON
 
     // Se abbiamo lo username e Spring non ha ancora registrato nessuno per questa richiesta
-    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-        
-        // Verifichiamo crittograficamente che il token sia integro e non scaduto
-        if (jwtUtils.isTokenValido(token, username)) {
+    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null
+    && jwtUtils.isTokenValido(token, username)) {
             
             // Estraggo la lista di ruoli (es. ["DOCENTE"]) dal JSON del token
             List<String> ruoli = jwtUtils.estraiRuoli(token);
@@ -91,7 +89,7 @@ protected void doFilterInternal(
             
             // REGISTRAZIONE: Mettiamo l'utente nella scatola! Ora è ufficialmente autenticato
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
+        
     }
     
     // In qualunque caso, dopo aver controllato il token, la richiesta prosegue la catena
